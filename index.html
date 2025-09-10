@@ -58,7 +58,7 @@
                         <p id="lessonContent" class="text-gray-600 mt-2 text-sm leading-relaxed"></p>
                         <p id="lessonScenario" class="text-gray-600 mt-4 text-sm font-medium"></p>
                         <div class="mt-4">
-                            <label for="icd10-quiz-answer" class="block text-sm font-medium text-gray-700">Enter the correct ICD-10-CM code:</label>
+                            <label id="quiz-answer-label" for="icd10-quiz-answer" class="block text-sm font-medium text-gray-700">Enter the correct ICD-10-CM code:</label>
                             <input type="text" id="icd10-quiz-answer" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2">
                         </div>
                         <div class="flex space-x-2 mt-4">
@@ -173,7 +173,8 @@
                         lessonContent: "The **Official Guidelines for Coding and Reporting** are your most important tool. They are published by the U.S. government and provide the rules for assigning every code. Chapter 1 in the ICD-10-CM manual, for example, has its own set of chapter-specific guidelines you must follow.",
                         scenario: "You are preparing to code a diagnosis from Chapter 1. What is the most important document you must reference to ensure accuracy?",
                         correctCode: "Official Guidelines for Coding and Reporting",
-                        correctFeedback: "Correct! The Official Guidelines are the definitive source for all coding rules."
+                        correctFeedback: "Correct! The Official Guidelines are the definitive source for all coding rules.",
+                        feedback: "The correct answer is not a code, but a document name: 'Official Guidelines for Coding and Reporting'. The question is asking for the document you must reference, not a specific code."
                     },
                     {
                         lessonContent: "A key rule for infectious diseases is that if the patient has a condition that is a complication of a medical procedure, you must use a code from Chapter 19 to describe the complication first. The infection is then coded as a secondary diagnosis.",
@@ -208,6 +209,13 @@
             document.getElementById('icd10-feedback').classList.add('hidden');
             document.getElementById('submitIcd10Btn').classList.remove('hidden');
             document.getElementById('nextQuestionBtn').classList.add('hidden');
+
+            const label = document.getElementById('quiz-answer-label');
+            if (step.correctCode.includes(" ")) {
+                label.innerText = "Enter your answer:";
+            } else {
+                label.innerText = "Enter the correct ICD-10-CM code:";
+            }
         }
 
         document.getElementById('submitIcd10Btn').addEventListener('click', function() {
@@ -219,8 +227,17 @@
             document.getElementById('nextQuestionBtn').classList.remove('hidden');
             document.getElementById('submitIcd10Btn').classList.add('hidden');
 
-            const isCorrect = (icd10QuizAnswer === step.correctCode.toUpperCase()) || 
+            let isCorrect = false;
+
+            if (currentChapterIndex === 0 && currentStepIndex === 0) {
+                const lowerCaseAnswer = icd10QuizAnswer.toLowerCase();
+                if (lowerCaseAnswer.includes("guidelines") || lowerCaseAnswer.includes("official")) {
+                    isCorrect = true;
+                }
+            } else {
+                isCorrect = (icd10QuizAnswer === step.correctCode.toUpperCase()) || 
                               (step.correctCode2 && icd10QuizAnswer === `${step.correctCode.toUpperCase()}, ${step.correctCode2.toUpperCase()}`);
+            }
 
             if (isCorrect) {
                 feedbackDiv.innerHTML = `<p class="text-green-800">✅ ${step.correctFeedback}</p>`;
